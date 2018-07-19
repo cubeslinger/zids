@@ -15,16 +15,22 @@ zids.stillunknown    =  {}
 zids.player          =  {}
 
 
+local function addtoziddb(zonedata)
+
+   if zids.db[zonedata.name] ==  nil or zids.db[zonedata.name] == "" then
+      zids.db[zonedata.name] =   { name=zonedata.name, id=zonedata.id, type=zonedata.type }
+   end
+
+   return
+end
+
 local function zonechangeevent(h, t)
 
-   print(string.format("zonechangeevent: h=%s t=%s", h, t ))
+--    print(string.format("zonechangeevent: h=%s t=%s", h, t ))
 
-   local unitid   =  nil
-   local cnt      =  1
+   local unit, zone, unitid, zoneid   =  nil, nil, nil, nil
 
    for unit, zone in pairs(t) do
-      print(string.format("zonechangeevent: (%s) unitid=%s zone=%s", cnt, unit, zone ))
-      cnt = cnt + 1
       if unitid   == nil   then
          unitid   =  unit
          zoneid   =  zone
@@ -32,16 +38,14 @@ local function zonechangeevent(h, t)
    end
 
    if unitid   == zids.player.unitid   then
-      print("zonechangeevent: Zone change event IS for US!")
 
       local bool, zonedata = pcall(Inspect.Zone.Detail, zoneid)
-
-      if zids.db[zonedata.name] ==  nil or zids.db[zonedata.name] == "" then
-         zids.db[zonedata.name] =   { name=zonedata.name, id=zonedata.id, type=zonedata.type }
+      if bool  then
+         addtoziddb(zonedata)
+--       if zids.db[zonedata.name] ==  nil or zids.db[zonedata.name] == "" then
+--          zids.db[zonedata.name] =   { name=zonedata.name, id=zonedata.id, type=zonedata.type }
+--       else
       end
-
-   else
-      print(string.format("zonechangeevent: Zone change event NOT for US.: \n[%s]\n[%s]", unitid, zids.player.unitid))
    end
 
    return
@@ -64,16 +68,12 @@ local function loadvariables(_, addonname)
 
    if addon.name == addonname then
 
-      if zoneidsdb then
-         zids.db  =  zoneidsdb
-      else
-         zids.db  =  {}
+      if zoneidsdb then    zids.db  =  zoneidsdb
+      else                 zids.db  =  {}
       end
 
-      if zidsunknown then
-         zids.unknown   =  zidsunknown
-      else
-         zids.unknown   =  {}
+      if zidsunknown then  zids.unknown   =  zidsunknown
+      else                 zids.unknown   =  {}
       end
 
       Command.Event.Detach(Event.Addon.SavedVariables.Load.End,   loadvariables,	"zids: Load Variables")
@@ -89,8 +89,10 @@ local function startup()
    zids.player.unitid   =  Inspect.Unit.Lookup("player")
 
    -- Discover Unknown zoneids from ither sources,
-   -- zidsunknown is an array manually pasted in
+   -- zidsunknown is an array manually appended (you
+   -- have to this by yourself) in:
    -- ~/RIFT/Interface/Saved/SavedVariables/zids.lua
+   --
    -- it looks like this:
    --
    --    zidsunknown =  {  "z0000000CB7B53FD7",
@@ -118,9 +120,11 @@ local function startup()
       local bool, zonedata = pcall(Inspect.Zone.Detail, zid)
       if bool then
 
-         if zids.db[zonedata.name] ==  nil or zids.db[zonedata.name] == "" then
-            zids.db[zonedata.name] =   { name=zonedata.name, id=zonedata.id, type=zonedata.type }
-         end
+         addtoziddb(zonedata)
+
+--          if zids.db[zonedata.name] ==  nil or zids.db[zonedata.name] == "" then
+--             zids.db[zonedata.name] =   { name=zonedata.name, id=zonedata.id, type=zonedata.type }
+--          end
       else
          table.insert(zids.stillunknown, zid)
          print(string.format("zids: zone id %s is still unknown.", zid))

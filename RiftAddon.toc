@@ -1,7 +1,7 @@
 Identifier  =  "zids"
 Name        =  { English = "zids" }
 NameShort   =  "zids"
-Version     =  "0.1"
+Version     =  "0.2"
 Description =  { English = "Collect Zone IDs on Char Zone Change" }
 Author      =  "marcob@marcob.org"
 Website     =  "https://github.com/cubeslinger/zids"
