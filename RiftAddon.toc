@@ -1,0 +1,18 @@
+Identifier  =  "zids"
+Name        =  { English = "zids" }
+NameShort   =  "zids"
+Version     =  "0.1"
+Description =  { English = "Collect Zone IDs on Char Zone Change" }
+Author      =  "marcob@marcob.org"
+Website     =  "https://github.com/cubeslinger/zids"
+Email       =  "marcob@marcob.org"
+Environment =  "4.0"
+
+RunOnStartup = {
+   "zids.lua",
+}
+
+SavedVariables = {
+   zoneidsdb =  'global',
+   zidsunknown =  'global',
+}
