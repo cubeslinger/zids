@@ -111,26 +111,31 @@ local function startup()
    --    }
    --
    --
-   local zid = nil
---    for _, zid in pairs(zids.unknown) do
-   while #zids.unknown > 0 do
+   local zid   = nil
+   local good  =  0
+   local bad   =  0
 
-      zid = table.remove(zids.unknown, 1)
+   if #zids.unknown > 0 then
+      while #zids.unknown > 0 do
 
-      local bool, zonedata = pcall(Inspect.Zone.Detail, zid)
-      if bool then
+         zid = table.remove(zids.unknown, 1)
 
-         addtoziddb(zonedata)
+         local bool, zonedata = pcall(Inspect.Zone.Detail, zid)
+         if bool then
+            good = good + 1
+            addtoziddb(zonedata)
 
---          if zids.db[zonedata.name] ==  nil or zids.db[zonedata.name] == "" then
---             zids.db[zonedata.name] =   { name=zonedata.name, id=zonedata.id, type=zonedata.type }
---          end
-      else
-         table.insert(zids.stillunknown, zid)
-         print(string.format("zids: zone id %s is still unknown.", zid))
+   --          if zids.db[zonedata.name] ==  nil or zids.db[zonedata.name] == "" then
+   --             zids.db[zonedata.name] =   { name=zonedata.name, id=zonedata.id, type=zonedata.type }
+   --          end
+         else
+            table.insert(zids.stillunknown, zid)
+            print(string.format("zids: zone id %s is still unknown.", zid))
+            bad = bad + 1
+         end
       end
+      print(string.format("Zid: discovered: %s still unknown: %s", good, bad))
    end
-
 
    Command.Event.Attach(Event.Unit.Detail.Zone, function(...) zonechangeevent(...) end,   "zids: Zone Change Event")
 
